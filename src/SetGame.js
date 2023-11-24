@@ -1,11 +1,13 @@
 import React, { useState, useEffect }  from 'react';
-import { View, Text, Button, TextInput, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, StyleSheet, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import Checkbox from 'expo-checkbox';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import format from 'date-fns/format';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { gameSave, loadItem } from '../service/GameService';
 import { useRoute } from '@react-navigation/native';
+import { Switch, TextInput, Text, Button } from 'react-native-paper';
+import DropDown from "react-native-paper-dropdown";
 
 export const SetGame = ({navigation}) => {
     const [isclear, setClear] = useState(false);
@@ -53,6 +55,9 @@ export const SetGame = ({navigation}) => {
 
     const [isDatePickerVisible, setDatePickerVisibility] = React.useState(false);
 
+    const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
+
+
     const showDatePicker = () => {
       setDatePickerVisibility(true);
     };
@@ -85,20 +90,22 @@ export const SetGame = ({navigation}) => {
 
     return (
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={styles.header}>Game Info</Text>
+      <ScrollView>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', marginBottom: 200 }}>
+        <Text style={styles.header}></Text>
         <View style={styles.checkboxSection}>
-          <Checkbox
+          <Switch
             value={isclear}
             onValueChange={setClear}
           />
-          <Text>済</Text>
+          <Text style={{marginStart: 8}}>クリア</Text>
         </View>
         <TextInput
           style={styles.input}
           onChangeText={(text) => onChangeGameName(text)}
           value={gameName}
-          placeholder="ゲーム名"
+          label="ゲーム名"
+          mode="outlined"
         />
         <DateTimePickerModal
           isVisible={isDatePickerVisible}
@@ -106,19 +113,21 @@ export const SetGame = ({navigation}) => {
           onConfirm={handleConfirm}
           onCancel={hideDatePicker}
         />
-        {!endtryDate &&<Text style={styles.inputEmpty} onPress={showDatePicker}>記入日</Text>}
-        {endtryDate && <Text style={styles.input} onPress={showDatePicker}>{format(endtryDate, 'yyyy/MM/dd')}</Text>}
+        {!endtryDate &&<TextInput style={styles.input} onPress={showDatePicker} onFocus={showDatePicker} mode="outlined" label="記入日"></TextInput>}
+        {endtryDate && <TextInput style={styles.input} onPress={showDatePicker} onFocus={showDatePicker} mode="outlined"　label="記入日" value={format(endtryDate, 'yyyy/MM/dd')}></TextInput>}
         <TextInput
           style={styles.input}
           onChangeText={(text) => onChangeInfoGatherPlace(text)}
           value={infoGatherPlace}
-          placeholder="情報入手場所"
+          mode="outlined"
+          label="情報入手場所"
         />
         <TextInput
           style={styles.input}
           onChangeText={(text) => setDestination(text)}
           value={destination}
-          placeholder="目的地"
+          label="目的地"
+          mode="outlined"
         />
         <TextInput
           style={styles.inputMemo}
@@ -126,19 +135,23 @@ export const SetGame = ({navigation}) => {
           numberOfLines={4}
           onChangeText={(text) => onChangeMemo(text)}
           value={memo}
-          placeholder="メモ"
+          label="内容"
+          mode="outlined"
         />
-        <DropDownPicker
-          open={open}
+        <DropDown
+          label="ステータス"
+          visible={open}
+          showDropDown={() => setOpen(true)}
+          onDismiss={() => setOpen(false)}
           value={eventCls}
-          items={items}
-          setOpen={setOpen}
           setValue={setEventCls}
-          setItems={setItems}
-          style={styles.inputDropdown}
+          list={items}
+          inputProps={{style:{width: 200, margin:12}}}          
+          mode="outlined"
         />
-        <Button title="保存" onPress={dataSave} />
+        <Button mode="contained" onPress={dataSave} style={styles.regButton}>保存</Button>
       </View>
+      </ScrollView>
       </TouchableWithoutFeedback>
       
     );
@@ -152,39 +165,25 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     margin: 12,
-    borderWidth: 1,
     padding: 10,
     width:200,
   },
   inputMemo: {
     height: 40,
     margin: 12,
-    borderWidth: 1,
     padding: 10,
     width:200,
     height: 100,
   },
-  inputEmpty: {
-    color:'#a9a9a9',
-    height: 40,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-    width:200,
-  },
   inputDropdown: {
-    height: 40,
-    marginTop: 12,
-    marginBottom: 12,
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    borderWidth: 1,
-    padding: 10,
-    width:200,
-    backgroundColor: 'transparent'
+    minWidth:500,
+    margin: 60,
   },
   checkboxSection: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  regButton: {
+    margin: 20
   }
 });
